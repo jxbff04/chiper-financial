@@ -1,80 +1,146 @@
-/* app/globals.css */
-/* Tailwind v4 syntax — @import replaces the old @tailwind directives */
+﻿@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
 
-/*
-  Tailwind v4 uses @theme to define design tokens.
-  This replaces the old :root CSS variables + tailwind.config.js approach.
-*/
 @theme {
-  /* Border radius */
-  --radius: 0.3rem;
-
-  /* Color palette — maps to the same names used in shadcn components */
-  --color-background: oklch(0.07 0 0);
-  --color-foreground: oklch(0.92 0 0);
-
-  --color-card: oklch(0.10 0 0);
-  --color-card-foreground: oklch(0.92 0 0);
-
-  --color-popover: oklch(0.10 0 0);
-  --color-popover-foreground: oklch(0.92 0 0);
-
-  --color-primary: oklch(0.55 0.15 142);
-  --color-primary-foreground: oklch(1 0 0);
-
-  --color-secondary: oklch(0.15 0 0);
-  --color-secondary-foreground: oklch(0.92 0 0);
-
-  --color-muted: oklch(0.15 0 0);
-  --color-muted-foreground: oklch(0.55 0 0);
-
-  --color-accent: oklch(0.15 0 0);
-  --color-accent-foreground: oklch(0.92 0 0);
-
-  --color-destructive: oklch(0.50 0.20 27);
-  --color-destructive-foreground: oklch(1 0 0);
-
-  --color-border: oklch(0.18 0 0);
-  --color-input: oklch(0.18 0 0);
-  --color-ring: oklch(0.55 0.15 142);
+  --radius: 0.15rem;
+  --color-background: oklch(0.055 0 0);
+  --color-foreground: oklch(0.91 0.01 90);
+  --color-card: oklch(0.085 0 0);
+  --color-card-foreground: oklch(0.91 0.01 90);
+  --color-primary: oklch(0.72 0.18 88);
+  --color-primary-foreground: oklch(0.06 0 0);
+  --color-secondary: oklch(0.12 0 0);
+  --color-secondary-foreground: oklch(0.75 0 0);
+  --color-muted: oklch(0.12 0 0);
+  --color-muted-foreground: oklch(0.48 0 0);
+  --color-border: oklch(0.16 0 0);
+  --color-input: oklch(0.14 0 0);
+  --color-ring: oklch(0.72 0.18 88);
+  --color-bull: oklch(0.70 0.17 142);
+  --color-bear: oklch(0.60 0.22 25);
+  --color-amber: oklch(0.72 0.18 88);
+  --color-cyan: oklch(0.75 0.12 200);
+  --color-purple: oklch(0.65 0.16 285);
 }
 
-/* Base styles — using plain CSS, no @apply needed */
-*,
-*::before,
-*::after {
-  border-color: oklch(0.18 0 0);
+*, *::before, *::after {
+  border-color: oklch(0.16 0 0);
   box-sizing: border-box;
 }
 
-html {
-  color-scheme: dark;
-}
+html { color-scheme: dark; }
 
 body {
-  background-color: oklch(0.07 0 0);
-  color: oklch(0.92 0 0);
-  font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+  background-color: oklch(0.055 0 0);
+  color: oklch(0.91 0.01 90);
+  font-family: 'IBM Plex Mono', 'Courier New', monospace;
+  font-size: 12px;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Subtle scanline overlay for terminal feel */
 body::before {
   content: '';
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 2px,
-    rgba(0, 0, 0, 0.03) 2px,
-    rgba(0, 0, 0, 0.03) 4px
-  );
+  inset: 0;
+  background-image:
+    linear-gradient(oklch(0.16 0 0 / 0.25) 1px, transparent 1px),
+    linear-gradient(90deg, oklch(0.16 0 0 / 0.25) 1px, transparent 1px);
+  background-size: 40px 40px;
   pointer-events: none;
+  z-index: 0;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, oklch(0.72 0.18 88), transparent);
   z-index: 9999;
+  opacity: 0.8;
+}
+
+#__next, main, header, footer {
+  position: relative;
+  z-index: 1;
+}
+
+.label-xs { font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; }
+.label-sm { font-size: 10px; letter-spacing: 0.10em; text-transform: uppercase; }
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+@keyframes flash-green {
+  0% { color: oklch(0.70 0.17 142); background: oklch(0.70 0.17 142 / 0.15); }
+  100% { color: inherit; background: transparent; }
+}
+@keyframes flash-red {
+  0% { color: oklch(0.60 0.22 25); background: oklch(0.60 0.22 25 / 0.15); }
+  100% { color: inherit; background: transparent; }
+}
+.flash-up { animation: flash-green 0.8s ease-out; }
+.flash-down { animation: flash-red 0.8s ease-out; }
+
+@keyframes ticker {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.ticker-tape {
+  animation: ticker 30s linear infinite;
+  white-space: nowrap;
+  display: inline-flex;
+  gap: 3rem;
+}
+.ticker-tape:hover { animation-play-state: paused; }
+
+.bb-panel {
+  background: oklch(0.085 0 0);
+  border: 1px solid oklch(0.16 0 0);
+  border-radius: 0.15rem;
+  position: relative;
+}
+.bb-panel::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: oklch(0.72 0.18 88 / 0.5);
+  border-radius: 0.15rem 0.15rem 0 0;
+}
+.bb-panel-cyan::before { background: oklch(0.75 0.12 200 / 0.6); }
+.bb-panel-green::before { background: oklch(0.70 0.17 142 / 0.6); }
+.bb-panel-red::before { background: oklch(0.60 0.22 25 / 0.6); }
+.bb-panel-purple::before { background: oklch(0.65 0.16 285 / 0.6); }
+
+.bb-metric {
+  background: oklch(0.085 0 0);
+  border: 1px solid oklch(0.16 0 0);
+  border-radius: 0.15rem;
+  padding: 8px 10px;
+  transition: border-color 0.15s;
+}
+.bb-metric:hover { border-color: oklch(0.72 0.18 88 / 0.5); }
+
+.bb-row {
+  border-bottom: 1px solid oklch(0.14 0 0);
+  transition: background 0.1s;
+}
+.bb-row:hover { background: oklch(0.11 0 0); }
+
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: oklch(0.08 0 0); }
+::-webkit-scrollbar-thumb { background: oklch(0.22 0 0); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: oklch(0.72 0.18 88 / 0.6); }
+
+::selection {
+  background: oklch(0.72 0.18 88 / 0.25);
+  color: oklch(0.96 0 0);
+}
+
+input, textarea {
+  font-family: 'IBM Plex Mono', monospace !important;
 }
