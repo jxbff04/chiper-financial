@@ -1,14 +1,24 @@
 // components/TearSheet.tsx
-// The AI-generated institutional tear sheet — the centerpiece output
+// AI-generated institutional tear sheet with Export PDF button
 
+'use client';
+
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { TearSheetData } from '@/lib/types';
-import { TrendingUp, TrendingDown, Minus, AlertTriangle, CheckCircle2, Info } from 'lucide-react';
+import {
+  TrendingUp, TrendingDown, Minus,
+  AlertTriangle, Info,
+  FileDown, Loader2,
+} from 'lucide-react';
 
 interface TearSheetProps {
   data: TearSheetData;
+  ticker: string;        // needed for PDF filename and export
+  reportElementId: string; // DOM id of the full report section to capture
 }
 
 const VERDICT_CONFIG = {
@@ -32,31 +42,68 @@ const VERDICT_CONFIG = {
   },
 };
 
-export default function TearSheet({ data }: TearSheetProps) {
+export default function TearSheet({ data, ticker, reportElementId }: TearSheetProps) {
+  const [isExporting, setIsExporting] = useState(false);
+  const [exportError, setExportError] = useState('');
+
   const verdict = VERDICT_CONFIG[data.verdict];
   const VerdictIcon = verdict.icon;
 
+  async function handleExport() {
+    setIsExporting(true);
+    setExportError('');
+    try {
+      // Dynamically import to avoid SSR issues with browser-only APIs
+      const { exportReportToPDF } = await import('@/lib/exportPDF');
+      await exportReportToPDF({ ticker, elementId: reportElementId });
+    } catch (err: unknown) {
+      setExportError(err instanceof Error ? err.message : 'Export failed.');
+    } finally {
+      setIsExporting(false);
+    }
+  }
+
   return (
-    <Card className={`border-2 ${verdict.borderClass} bg-card`}>
+    <Card className={'border-2 ' + verdict.borderClass + ' bg-card'}>
       <CardHeader className="pb-3 pt-4 px-4">
         <div className="flex items-center justify-between flex-wrap gap-2">
           <CardTitle className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
             AI Synthesis — Zero-Bias Tear Sheet
           </CardTitle>
-          {/* Confidence score */}
-          <span className="text-[10px] text-muted-foreground">
-            Data Confidence:{' '}
-            <span className="text-foreground font-bold">{data.confidenceScore}%</span>
-          </span>
+          <div className="flex items-center gap-3">
+            {/* Data confidence score */}
+            <span className="text-[10px] text-muted-foreground">
+              Data Confidence:{' '}
+              <span className="text-foreground font-bold">{data.confidenceScore}%</span>
+            </span>
+            {/* Export PDF button */}
+            <Button
+              onClick={handleExport}
+              disabled={isExporting}
+              size="sm"
+              variant="outline"
+              className="h-7 px-3 text-[10px] font-bold uppercase tracking-wider border-border hover:border-emerald-700 hover:text-emerald-400 transition-colors"
+            >
+              {isExporting
+                ? <><Loader2 size={11} className="animate-spin mr-1.5" />Exporting...</>
+                : <><FileDown size={11} className="mr-1.5" />Export PDF</>
+              }
+            </Button>
+          </div>
         </div>
 
-        {/* Big verdict display */}
+        {/* Export error message */}
+        {exportError && (
+          <p className="text-[10px] text-red-400 mt-1">{exportError}</p>
+        )}
+
+        {/* Verdict display */}
         <div className="flex items-center gap-3 mt-3">
           <VerdictIcon size={28} className={verdict.color} />
           <div>
             <Badge
               variant="outline"
-              className={`text-base px-3 py-1 font-black tracking-widest ${verdict.badgeClass}`}
+              className={'text-base px-3 py-1 font-black tracking-widest ' + verdict.badgeClass}
             >
               {data.verdict}
             </Badge>
@@ -97,7 +144,6 @@ export default function TearSheet({ data }: TearSheetProps) {
               color="text-red-100"
               marker="▼"
               markerColor="text-red-500"
-              // Highlight lines that start with CRITICAL
               highlight={point.startsWith('CRITICAL')}
             />
           ))}
@@ -112,7 +158,7 @@ export default function TearSheet({ data }: TearSheetProps) {
   );
 }
 
-// ── Sub-components ──────────────────────────────────────────────
+// ── Sub-components ────────────────────────────────────────────────
 
 function Section({
   icon: Icon,
@@ -153,11 +199,12 @@ function BulletPoint({
 }) {
   return (
     <div
-      className={`flex items-start gap-2 text-xs leading-relaxed rounded px-2 py-1 ${
-        highlight ? 'bg-red-950/40 border border-red-900/50' : ''
-      }`}
+      className={
+        'flex items-start gap-2 text-xs leading-relaxed rounded px-2 py-1 ' +
+        (highlight ? 'bg-red-950/40 border border-red-900/50' : '')
+      }
     >
-      <span className={`shrink-0 mt-0.5 font-bold ${markerColor}`}>{marker}</span>
+      <span className={'shrink-0 mt-0.5 font-bold ' + markerColor}>{marker}</span>
       <span className={color}>{text}</span>
     </div>
   );
